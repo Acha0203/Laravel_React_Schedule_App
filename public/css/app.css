@@ -10271,3 +10271,75 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+li {
+  list-style-type: none;
+  font-size: 0.8rem;
+}
+
+main {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.calendar-header {
+  width: 80%;
+  display: flex;
+  justify-content: space-between;
+  margin: 10px auto 1rem auto;
+}
+.calendar-header h1, .calendar-header .h1 {
+  font-size: 2rem;
+}
+.calendar-header .calendar-nav {
+  display: flex;
+  justify-content: end;
+  font-size: 1.5rem;
+}
+.calendar-header .calendar-nav button {
+  border: none;
+  background-color: transparent;
+  margin-left: 1rem;
+}
+
+.calendar-table {
+  width: 80%;
+  margin: 0 auto;
+  text-align: left;
+}
+.calendar-table thead {
+  text-align: center;
+}
+.calendar-table thead th {
+  border: 1px solid silver;
+}
+.calendar-table tbody tr td:hover {
+  background-color: silver;
+}
+.calendar-table tbody tr td {
+  border: 1px solid silver;
+  padding: 0.3rem 0.3rem 1rem 0.3rem;
+  width: 14.2857142857%;
+}
+.calendar-table tbody tr td .nschedule-date {
+  text-align: right;
+  font-size: 0.8rem;
+  color: silver;
+}
+.calendar-table tbody tr td .schedule-date {
+  text-align: right;
+  font-size: 0.8rem;
+}
+.calendar-table tbody tr td .schedule-area {
+  height: 5rem;
+}
+.calendar-table tbody tr td .schedule-area .schedule-title {
+  color: #fff;
+  background-color: #3788d8;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  padding-left: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+.calendar-table tbody tr td.today {
+  background-color: #f1efd6;
+}
