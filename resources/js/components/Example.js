@@ -1,6 +1,6 @@
-import React, { Fragment, useState } from 'react';
-
+import React, { Fragment, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import axios from 'axios';
 
 function Example() {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -22,6 +22,41 @@ function Example() {
       setMonth(nextMonth);
     }
   };
+
+  //スケジュールのデータ
+  const [schedules, setSche] = useState([]);
+
+  //画面読み込み時に、1度だけ起動
+  useEffect(() => {
+    getPostData();
+  }, []);
+
+  //バックエンドからデータ一覧を取得
+  const getPostData = () => {
+    axios
+      .post('/api/posts')
+      .then((response) => {
+        setSche(response.data); //バックエンドからのデータをセット
+        console.log(response.data);
+      })
+      .catch(() => {
+        console.log('通信に失敗しました');
+      });
+  };
+
+  //データ格納の空配列を作成
+  let rows = [];
+
+  //スケジュールデータをrowに格納する
+  schedules.map((post) =>
+    rows.push({
+      sch_id: post.id,
+      sch_category: post.sch_category,
+      sch_contents: post.sch_contents,
+      sch_date: post.sch_date,
+      sch_time: post.sch_time,
+    })
+  );
 
   return (
     <Fragment>
@@ -55,7 +90,16 @@ function Example() {
                 <td key={`${i}${j}`} id={day}>
                   <div>
                     <div>{day > last ? day - last : day <= 0 ? prevlast + day : day}</div>
-                    <div className="schedule-area"></div>
+                    <div className="schedule-area">
+                      {rows.map(
+                        (schedule, k) =>
+                          schedule.sch_date == year + '-' + zeroPadding(month) + '-' + zeroPadding(day) && (
+                            <div className="schedule-title" key={k} id={schedule.sch_id}>
+                              {schedule.sch_contents}
+                            </div>
+                          )
+                      )}
+                    </div>
                   </div>
                 </td>
               ))}
@@ -77,6 +121,10 @@ function createCalendear(year, month) {
       return day - first;
     });
   });
+}
+
+function zeroPadding(num) {
+  return ('0' + num).slice(-2);
 }
 
 export default Example;
