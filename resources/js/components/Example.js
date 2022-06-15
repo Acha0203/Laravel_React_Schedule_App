@@ -93,15 +93,15 @@ function Example() {
     const key = e.target.name;
     const value = e.target.value;
     formData[key] = value;
-    let datas = Object.assign({}, formData);
-    setFormData(datas);
+    let dare = Object.assign({}, formData);
+    setFormData(dare);
     console.log(formData);
   };
 
   //登録処理
-  const createSchedule = async (e) => {
+  const createSchedule = async () => {
     //リンク移動の無効化
-    e.preventDefault();
+    // e.preventDefault();
 
     //入力値を投げる
     await axios
@@ -109,13 +109,92 @@ function Example() {
         sch_category: formData.sch_category,
         sch_contents: formData.sch_contents,
         sch_date: formData.sch_date,
-        sch_time: formData.sch_hour + ':' + formData.sch_min,
+        sch_time: formData.sch_hour + ':' + formData.sch_min + ':00',
       })
       .then((res) => {
         //戻り値をtodosにセット
         const tempPosts = [...schedules];
         tempPosts.push(res.data);
         setSche(tempPosts);
+        setFormData('');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  //更新用ダイアログ開閉機能
+  const [editopen, setEditOpen] = useState(false);
+
+  const editHandleClickOpen = (e) => {
+    e.stopPropagation();
+    setEditOpen(true);
+    getEditData(e);
+  };
+
+  const editHandleClose = () => {
+    setEditOpen(false);
+  };
+
+  //更新用のデータ配列
+  const [editData, setEditData] = useState({
+    id: '',
+    sch_category: '',
+    sch_contents: '',
+    sch_date: '',
+    sch_hour: '',
+    sch_min: '',
+  });
+
+  //バックエンドからデータ一覧を取得
+  const getEditData = (e) => {
+    axios
+      .post('/api/edit', {
+        id: e.target.id,
+      })
+      .then((res) => {
+        setEditData({
+          id: res.data.id,
+          sch_category: res.data.sch_category,
+          sch_contents: res.data.sch_contents,
+          sch_date: res.data.sch_date,
+          sch_hour: res.data.sch_time.substr(0, 2),
+          sch_min: res.data.sch_time.substr(3, 2),
+        });
+      })
+      .catch(() => {
+        console.log('更新の通信に失敗しました');
+      });
+  };
+
+  //入力値を一時保存
+  const editChange = (e) => {
+    const key = e.target.name;
+    const value = e.target.value;
+    console.log(value);
+    editData[key] = value;
+    let dare = Object.assign({}, editData);
+    console.log(dare);
+    setEditData(dare);
+  };
+
+  //ダイアログデータを登録
+  const updateSchedule = async () => {
+    //リンク移動の無効化
+    // e.preventDefault();
+    //入力値を投げる
+    await axios
+      .post('/api/update', {
+        id: editData.id,
+        sch_category: editData.sch_category,
+        sch_contents: editData.sch_contents,
+        sch_date: editData.sch_date,
+        sch_time: editData.sch_hour + ':' + editData.sch_min + ':00',
+      })
+      .then((res) => {
+        //戻り値をtodosにセット
+        setEditData(res.data);
+        console.log('editData: ' + editData);
       })
       .catch((error) => {
         console.log(error);
@@ -158,7 +237,7 @@ function Example() {
                       {rows.map(
                         (schedule, k) =>
                           schedule.sch_date == year + '-' + zeroPadding(month) + '-' + zeroPadding(day) && (
-                            <div className="schedule-title" key={k} id={schedule.sch_id}>
+                            <div className="schedule-title" key={k} onClick={editHandleClickOpen} id={schedule.sch_id}>
                               {schedule.sch_contents}
                             </div>
                           )
@@ -324,6 +403,159 @@ function Example() {
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button href="/dashboard" onClick={createSchedule}>
+            Subscribe
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog onClose={handleClose} open={editopen}>
+        <DialogTitle>Subscribe</DialogTitle>
+        <DialogContent>
+          <DialogContentText>スケジュール更新</DialogContentText>
+          <TextField
+            margin="dense"
+            id="sch_date"
+            name="sch_date"
+            label="予定日"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={editData.sch_date}
+            onChange={editChange}
+          />
+          <InputLabel id="sch_time_label">時刻</InputLabel>
+          <Select
+            labelId="sch_hour"
+            id="sch_hour_select"
+            name="sch_hour"
+            label="Hour"
+            variant="standard"
+            value={editData.sch_hour}
+            onChange={editChange}
+          >
+            <MenuItem value="00">00</MenuItem>
+            <MenuItem value="01">01</MenuItem>
+            <MenuItem value="02">02</MenuItem>
+            <MenuItem value="03">03</MenuItem>
+            <MenuItem value="04">04</MenuItem>
+            <MenuItem value="05">05</MenuItem>
+            <MenuItem value="06">06</MenuItem>
+            <MenuItem value="07">07</MenuItem>
+            <MenuItem value="08">08</MenuItem>
+            <MenuItem value="09">09</MenuItem>
+            <MenuItem value="10">10</MenuItem>
+            <MenuItem value="11">11</MenuItem>
+            <MenuItem value="12">12</MenuItem>
+            <MenuItem value="13">13</MenuItem>
+            <MenuItem value="14">14</MenuItem>
+            <MenuItem value="15">15</MenuItem>
+            <MenuItem value="16">16</MenuItem>
+            <MenuItem value="17">17</MenuItem>
+            <MenuItem value="18">18</MenuItem>
+            <MenuItem value="19">19</MenuItem>
+            <MenuItem value="20">20</MenuItem>
+            <MenuItem value="21">21</MenuItem>
+            <MenuItem value="22">22</MenuItem>
+            <MenuItem value="23">23</MenuItem>
+          </Select>
+          <Select
+            labelId="sch_min"
+            id="sch_min_select"
+            name="sch_min"
+            label="Min"
+            variant="standard"
+            value={editData.sch_min}
+            onChange={editChange}
+          >
+            <MenuItem value="00">00</MenuItem>
+            <MenuItem value="01">01</MenuItem>
+            <MenuItem value="02">02</MenuItem>
+            <MenuItem value="03">03</MenuItem>
+            <MenuItem value="04">04</MenuItem>
+            <MenuItem value="05">05</MenuItem>
+            <MenuItem value="06">06</MenuItem>
+            <MenuItem value="07">07</MenuItem>
+            <MenuItem value="08">08</MenuItem>
+            <MenuItem value="09">09</MenuItem>
+            <MenuItem value="10">10</MenuItem>
+            <MenuItem value="11">11</MenuItem>
+            <MenuItem value="12">12</MenuItem>
+            <MenuItem value="13">13</MenuItem>
+            <MenuItem value="14">14</MenuItem>
+            <MenuItem value="15">15</MenuItem>
+            <MenuItem value="16">16</MenuItem>
+            <MenuItem value="17">17</MenuItem>
+            <MenuItem value="18">18</MenuItem>
+            <MenuItem value="19">19</MenuItem>
+            <MenuItem value="20">20</MenuItem>
+            <MenuItem value="21">21</MenuItem>
+            <MenuItem value="22">22</MenuItem>
+            <MenuItem value="23">23</MenuItem>
+            <MenuItem value="24">24</MenuItem>
+            <MenuItem value="25">25</MenuItem>
+            <MenuItem value="26">26</MenuItem>
+            <MenuItem value="27">27</MenuItem>
+            <MenuItem value="28">28</MenuItem>
+            <MenuItem value="29">29</MenuItem>
+            <MenuItem value="30">30</MenuItem>
+            <MenuItem value="31">31</MenuItem>
+            <MenuItem value="32">32</MenuItem>
+            <MenuItem value="33">33</MenuItem>
+            <MenuItem value="34">34</MenuItem>
+            <MenuItem value="35">35</MenuItem>
+            <MenuItem value="36">36</MenuItem>
+            <MenuItem value="37">37</MenuItem>
+            <MenuItem value="38">38</MenuItem>
+            <MenuItem value="39">39</MenuItem>
+            <MenuItem value="40">40</MenuItem>
+            <MenuItem value="41">41</MenuItem>
+            <MenuItem value="42">42</MenuItem>
+            <MenuItem value="43">43</MenuItem>
+            <MenuItem value="44">44</MenuItem>
+            <MenuItem value="45">45</MenuItem>
+            <MenuItem value="46">46</MenuItem>
+            <MenuItem value="47">47</MenuItem>
+            <MenuItem value="48">48</MenuItem>
+            <MenuItem value="49">49</MenuItem>
+            <MenuItem value="50">50</MenuItem>
+            <MenuItem value="51">51</MenuItem>
+            <MenuItem value="52">52</MenuItem>
+            <MenuItem value="53">53</MenuItem>
+            <MenuItem value="54">54</MenuItem>
+            <MenuItem value="55">55</MenuItem>
+            <MenuItem value="56">56</MenuItem>
+            <MenuItem value="57">57</MenuItem>
+            <MenuItem value="58">58</MenuItem>
+            <MenuItem value="59">59</MenuItem>
+          </Select>
+          <InputLabel id="sch_category">カテゴリー</InputLabel>
+          <Select
+            labelId="sch_category"
+            id="sch_category_select"
+            name="sch_category"
+            label="Category"
+            variant="standard"
+            value={editData.sch_category}
+            onChange={editChange}
+          >
+            <MenuItem value="勉強">勉強</MenuItem>
+            <MenuItem value="案件">案件</MenuItem>
+            <MenuItem value="テスト">テスト</MenuItem>
+          </Select>
+          <TextField
+            margin="dense"
+            id="sch_contents"
+            name="sch_contents"
+            label="内容"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={editData.sch_contents}
+            onChange={editChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={editHandleClose}>Cancel</Button>
+          <Button href="/dashboard" onClick={updateSchedule}>
             Subscribe
           </Button>
         </DialogActions>
