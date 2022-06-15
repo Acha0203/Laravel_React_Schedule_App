@@ -201,6 +201,25 @@ function Example() {
       });
   };
 
+  const deletePost = async (e) => {
+    //リンク移動の無効化
+    e.preventDefault();
+    //削除処理
+    await axios
+      .post('api/delete', {
+        id: editData.id,
+      })
+      .then((res) => {
+        // this.setState({
+        //   posts: res.posts,
+        // });
+        setSche(res.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     <Fragment>
       <div className="calendar-header">
@@ -554,6 +573,9 @@ function Example() {
           />
         </DialogContent>
         <DialogActions>
+          <Button href="/dashboard" onClick={deletePost}>
+            Delete
+          </Button>
           <Button onClick={editHandleClose}>Cancel</Button>
           <Button href="/dashboard" onClick={updateSchedule}>
             Subscribe
